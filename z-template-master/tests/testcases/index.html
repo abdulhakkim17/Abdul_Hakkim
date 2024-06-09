@@ -1,0 +1,430 @@
+<html>
+    <head>
+        <title>Z Template Tests</title>
+
+        <!-- previous version for comparison -->
+        <script src="https://code.jquery.com/jquery-3.6.3.slim.js" integrity="sha256-DKU1CmJ8kBuEwumaLuh9Tl/6ZB6jzGOBV/5YpNE2BWc=" crossorigin="anonymous"></script>
+        <script type="text/javascript" src="./jquery.template.js"></script>
+
+        <!-- new version -->
+        <link rel="stylesheet" type="text/css" href="../../javascript/template.css"/>
+        <script type="text/javascript" src="../../javascript/template.bundle.js"></script>
+        <script type="module" src="./test.js"></script>
+        <link rel="stylesheet" type="text/css" href="./test.css"/>
+    </head>
+<body>
+    <h1>Z Template 2.0 Tests</h1>
+
+    <div id="header">
+        <div z-var="!bundle ?">
+            Using a module loader.
+            <a  href="?bundle">Test minified non-module bundle</a>
+        </div>
+        <div z-var="bundle ?">
+            Using a minified non-module bundle.
+            <a href="?module">Test a module version</a>
+        </div>
+
+        <div z-var="pass ?" class="result success">✅ OK</div>
+        <div z-var="!pass ?" class="result failure">❌ FAIL</div>
+    </div>
+
+    <ol id="tests">
+        <!-- <li data='{"list": [{"name": "one", "show": true}, {"name": "two", "show": false}, {"name": "three", "show": true}]}'> -->
+        <!--     <article> -->
+        <!--         <div template="[list]" z-var="name text, show !">Name: {name}</div> -->
+        <!--     </article> -->
+        <!--     <article> -->
+        <!--         <div z-var="name text, show !" class="template-clone" template-clone="[list]" template-clone-id="0" template-clone-hash="2303094881" z-content-rev="1">one</div><div z-var="name text, show !" class="template-clone" template-clone="[list]" template-clone-id="2" template-clone-hash="4061263994" z-content-rev="1">three</div><div template="[list]" z-var="name text, show !">Name: {name}</div> -->
+        <!--     </article> -->
+        <!-- </li> -->
+        <!--
+            <li data="INPUT_VARS">
+                <article>HTML TO APPLY TEMPLATE TO</article>
+                [<article>EXPECTED OUTPUT. IF MISSING OLD $.template() WILL BE USED TO GENERATE IT</article>]
+            </li>
+        -->
+        <li data='{"foo": 0, "bar": 1}'>
+            <article>
+                <div z-var="foo ."></div>
+                <div z-var="bar ."></div>
+            </article>
+            <article>
+                <div z-var="foo ." z-content-rev="1">0</div>
+                <div z-var="bar ." z-content-rev="1">1</div>
+            </article>                
+        </li>
+        <li data='{"foo": [1, 2, 3], "bar": {"a": 1, "b": 2, "c": 3}}'>
+            <article>
+                <div z-var="'Hello world!' call cbTest1 {foo}"></div>
+                <div z-var="'Hello world!' call cbTest2"></div>
+                <div z-var="'Hello world!' call cbTest1('something', foo) {foo}"></div>
+                <div z-var="'Hello world!' call cbTest2('something', bar)"></div>
+            </article>
+            <article>
+                <div z-var="'Hello world!' call cbTest1 {foo}">Default callback cbTest1: {"value":"Hello world!","data":{"foo":[1,2,3],"bar":{"a":1,"b":2,"c":3}},"arguments":[]}</div>
+                <div z-var="'Hello world!' call cbTest2">Local callback cbTest2: {"value":"Hello world!","data":{"foo":[1,2,3],"bar":{"a":1,"b":2,"c":3}},"arguments":[]}</div>
+                <div z-var="'Hello world!' call cbTest1('something', foo) {foo}">Default callback cbTest1: {"value":"Hello world!","data":{"foo":[1,2,3],"bar":{"a":1,"b":2,"c":3}},"arguments":["something",[1,2,3]]}</div>
+                <div z-var="'Hello world!' call cbTest2('something', bar)">Local callback cbTest2: {"value":"Hello world!","data":{"foo":[1,2,3],"bar":{"a":1,"b":2,"c":3}},"arguments":["something",{"a":1,"b":2,"c":3}]}</div>
+            </article>
+        </li>
+        <li data='{"foo": [1, 2, 3], "bar": {"a": 1, "b": 2, "c": 3}}'>
+            <article>
+                <div z-var="'Hello world!' text {foo}"></div>
+                <div z-var="'Hello world!' text {foo && bar.b == 2}"></div>
+                <div z-var="'&lt;h1&gt;Hello world!&lt;/h1&gt;' html {foo == 3}"></div>
+            </article>
+            <article>
+                <div z-var="'Hello world!' text {foo}" z-content-rev="1">Hello world!</div>
+                <div z-var="'Hello world!' text {foo &amp;&amp; bar.b == 2}" z-content-rev="1">Hello world!</div>
+                <div z-var="'<h1>Hello world!</h1>' html {foo == 3}" z-content-rev="1"><h1>Hello world!</h1></div>
+            </article>
+        </li>
+        <li data='{"foo": {"bar": [1, 2, 3]}}'>
+            <article>
+                <template template="[foo.bar]">
+                    <div z-var="value text"></div>
+                </template>
+            </article>
+            <article>
+                <div z-var="value text" class="template-clone" template-clone="[foo.bar]" template-clone-id="0" template-clone-hash="2212294583" z-content-rev="1">1</div><div z-var="value text" class="template-clone" template-clone="[foo.bar]" template-clone-id="1" template-clone-hash="450215437" z-content-rev="1">2</div><div z-var="value text" class="template-clone" template-clone="[foo.bar]" template-clone-id="2" template-clone-hash="1842515611" z-content-rev="1">3</div><template template="[foo.bar]">
+                    <div z-var="value text"></div>
+                </template>
+            </article>
+        </li>
+        <li data='{"foo": {"bar": [1, 2, 3]}, "baz": 123}'>
+            <article>
+                <div z-var="foo event printargs (foo.bar, baz, 'test', foo == 3 && baz == '123')"></div>
+                <div z-var="foo.bar text">3</div>
+            </article>
+            <article>
+                <div z-var="foo event printargs (foo.bar, baz, 'test', foo == 3 &amp;&amp; baz == '123')">{"value":1,"data":{"foo":{"bar":[1,2,3]},"baz":123},"arguments":[[1,2,3],123,"test",0]}</div>
+                <div z-var="foo.bar text" z-var-content="3">3</div>
+            </article>
+        </li>
+        <li data='{"foo": [1, 2, 3]}'>
+            <article>
+                <div z-var="{foo == 3} class three">?</div>
+                <div z-var="{foo > 3} class three">?</div>
+                <div z-var="{foo < 3} class three">?</div>
+            </article>
+            <article>
+                <div z-var="{foo == 3} class three" class="three">?</div>
+                <div z-var="{foo > 3} class three">?</div>
+                <div z-var="{foo < 3} class three">?</div>
+            </article>
+        </li>
+        <li data='{"name": "John Doe", "age": 42, "address": {"street": "123 Main St.", "city": "Anytown", "state": "CA", "zip": "12345"}}'>
+            <article>
+                <p z-var="address.street text {address.zip == 12345}"></p>
+                <p z-var="address.street text {address.zip > 12340}"></p>
+                <p z-var="address.street text {address.zip < 12340}"></p>
+            </article>
+            <article>
+                <p z-var="address.street text {address.zip == 12345}" z-content-rev="1">123 Main St.</p>
+                <p z-var="address.street text {address.zip > 12340}" z-content-rev="1">123 Main St.</p>
+                <p z-var="address.street text {address.zip < 12340}"></p>
+            </article>
+        </li>
+        <li data='{"foo": [{"name": "item1", "bar": ["baz", "qux"]}, {"name": "item2", "bar": ["quux", "quuz"]}, {"name": "item3", "bar": []}]}'>
+            <article>
+                <ol>
+                    <template template="[foo]">
+                        <li>
+                            <b z-var="name text"></b>
+                            <ol z-var="!bar class hidden">
+                                <template template="[bar]"><li z-var="value text"></li></template>
+                            </ol>
+                        </li>
+                    </template>
+                </ol>
+            </article>
+            <article>
+                <ol>
+                    <li class="template-clone" template-clone="[foo]" template-clone-id="0" template-clone-hash="2433764646">
+                            <b z-var="name text" z-content-rev="1">item1</b>
+                            <ol z-var="!bar class hidden">
+                                <li z-var="value text" class="template-clone" template-clone="[bar]" template-clone-id="0" template-clone-hash="2779366782" z-content-rev="1">baz</li><li z-var="value text" class="template-clone" template-clone="[bar]" template-clone-id="1" template-clone-hash="3457963041" z-content-rev="1">qux</li><template template="[bar]"><li z-var="value text"></li></template>
+                            </ol>
+                        </li><li class="template-clone" template-clone="[foo]" template-clone-id="1" template-clone-hash="2374741791">
+                            <b z-var="name text" z-content-rev="1">item2</b>
+                            <ol z-var="!bar class hidden">
+                                <li z-var="value text" class="template-clone" template-clone="[bar]" template-clone-id="0" template-clone-hash="55149806" z-content-rev="1">quux</li><li z-var="value text" class="template-clone" template-clone="[bar]" template-clone-id="1" template-clone-hash="830465644" z-content-rev="1">quuz</li><template template="[bar]"><li z-var="value text"></li></template>
+                            </ol>
+                        </li><li class="template-clone" template-clone="[foo]" template-clone-id="2" template-clone-hash="3429635132">
+                            <b z-var="name text" z-content-rev="1">item3</b>
+                            <ol z-var="!bar class hidden" class="hidden">
+                                <template template="[bar]"><li z-var="value text"></li></template>
+                            </ol>
+                        </li><template template="[foo]">
+                        <li>
+                            <b z-var="name text"></b>
+                            <ol z-var="!bar class hidden">
+                                <template template="[bar]"><li z-var="value text"></li></template>
+                            </ol>
+                        </li>
+                    </template>
+                </ol>
+            </article>
+        </li>
+        <li data='{"isEnabled": true}'>
+            <article z-scope-children="test" z-var="isEnabled .test-enabled">
+                <input type="checkbox" z-var="!!isEnabled @checked"/>
+            </article>
+            <article z-scope-children="test" z-var="isEnabled .test-enabled" class="test-enabled">
+                <input type="checkbox" z-var="!!isEnabled @checked" checked="checked"/>
+            </article>
+        </li>
+        <li data='{"isEnabled": true}'>
+            <article z-scope="test" z-var="isEnabled .test-enabled">
+                <input type="checkbox" z-var="!!isEnabled @checked"/>
+            </article>
+            <article z-scope="test" z-var="isEnabled .test-enabled" class="test-enabled">
+                <input type="checkbox" z-var="!!isEnabled @checked" checked="checked"/>
+            </article>
+        </li>
+        <li data='{"isEnabled": true}'>
+            <article template-scope="test" z-var="isEnabled .test-enabled">
+                <input type="checkbox" z-var="!!isEnabled @checked"/>
+                <div template-scope="test2" z-var="isEnabled .test2-enabled">
+                    <input type="checkbox" z-var="!!isEnabled @checked"/>
+                </div>
+            </article>
+        </li>
+        <li data='{"true": true, "false": false}'>
+            <article>
+                <p z-var="true ?, false ?"></p>
+                <p z-var="!true ?, !false ?"></p>
+            </article>
+            <article>
+                <p z-var="true ?, false ?" class="z-template-hidden"></p>
+                <p z-var="!true ?, !false ?" class="z-template-hidden"></p>
+            </article>
+        </li>
+        <li data='{"foo": ["bar2", "baz2", "qux2"]}'>
+            <article>
+                <ol>
+                    <li template="[foo]" z-var="value text"></li>
+                </ol>
+                <ol>
+                    <template template="[foo]"><li z-var="value text"></li></template>
+                </ol>
+            </article>
+            <article>
+                <ol>
+                    <li z-var="value text" class="template-clone" template-clone="[foo]" template-clone-id="0" template-clone-hash="4104853630" z-content-rev="1">bar2</li><li z-var="value text" class="template-clone" template-clone="[foo]" template-clone-id="1" template-clone-hash="4206381510" z-content-rev="1">baz2</li><li z-var="value text" class="template-clone" template-clone="[foo]" template-clone-id="2" template-clone-hash="17281074" z-content-rev="1">qux2</li><li template="[foo]" z-var="value text"></li>
+                </ol>
+                <ol>
+                    <li z-var="value text" class="template-clone" template-clone="[foo]" template-clone-id="0" template-clone-hash="4104853630" z-content-rev="1">bar2</li><li z-var="value text" class="template-clone" template-clone="[foo]" template-clone-id="1" template-clone-hash="4206381510" z-content-rev="1">baz2</li><li z-var="value text" class="template-clone" template-clone="[foo]" template-clone-id="2" template-clone-hash="17281074" z-content-rev="1">qux2</li><template template="[foo]"><li z-var="value text"></li></template>
+                </ol>
+            </article>
+        </li>
+        <li data='{"name": "John Doe", "age": 42, "address": {"street": "123 Main St.", "city": "Anytown", "state": "CA", "zip": "12345"}}'>
+            <article>
+                <p z-var="address.street text"></p>
+                <p z-var="address.city text"></p>
+                <h1 z-var="name text"></h1>
+                <p z-var="age text"></p>
+            </article>
+            <article>
+                <p z-var="address.street text" z-content-rev="1">123 Main St.</p>
+                <p z-var="address.city text" z-content-rev="1">Anytown</p>
+                <h1 z-var="name text" z-content-rev="1">John Doe</h1>
+                <p z-var="age text" z-content-rev="1">42</p>
+            </article>
+        </li>
+        <li data='{"isEnabled": true}'>
+            <article>
+                <input type="checkbox" z-var="isEnabled @checked" template-scope="inherit"/>
+                <div template-scope="inherit">
+                    <input type="checkbox" z-var="!!isEnabled @checked"/>
+                </div>
+            </article>
+            <article>
+                <input type="checkbox" z-var="isEnabled @checked" template-scope="inherit" checked="checked"/>
+                <div template-scope="inherit">
+                    <input type="checkbox" z-var="!!isEnabled @checked" checked="checked"/>
+                </div>
+            </article>
+        </li>
+        <li data='{"isEnabled": true}'>
+            <article>
+                <input type="checkbox" z-var="isEnabled @checked" template-scope="test"/>
+                <div template-scope="test">
+                    <input type="checkbox" z-var="!!isEnabled @checked"/>
+                </div>
+            </article>
+            <article>
+                <input type="checkbox" z-var="isEnabled @checked" template-scope="test" checked="checked"/>
+                <div template-scope="test">
+                    <input type="checkbox" z-var="!!isEnabled @checked"/>
+                </div>
+            </article>
+            <!-- <article> -->
+            <!--     <input type="checkbox" z-var="isEnabled @checked" template-scope="test"/> -->
+            <!--     <div template-scope="test"> -->
+            <!--         <input type="checkbox" z-var="!!isEnabled @checked"/> -->
+            <!--     </div> -->
+            <!-- </article> -->
+        </li>
+        <li data='{"isEnabled": true}'>
+            <article template-scope="test">
+                <input type="checkbox" z-var="isEnabled @checked"/>
+                <input type="checkbox" z-var="!isEnabled @checked"/>
+                <input type="checkbox" z-var="!!isEnabled @checked"/>
+            </article>
+            <article template-scope="test">
+                <input type="checkbox" z-var="isEnabled @checked" checked="checked"/>
+                <input type="checkbox" z-var="!isEnabled @checked"/>
+                <input type="checkbox" z-var="!!isEnabled @checked" checked="checked"/>
+            </article>
+        </li>
+        <li data='{"sub": {"foo": "bar", "baz": "boo"}}'>
+            <article>
+                <template template="{sub}">
+                    <h2 z-var="foo .">Test ${foo}</h2>
+                    <p z-var="baz .">Looping through a list #${baz}</p>
+                </template>
+            </article>
+            <article>
+                <h2 z-var="foo ." class="template-clone" template-clone="{sub}" template-clone-id="0" template-clone-hash="2496785494" z-var-content="Test ${foo}" z-content-rev="1">Test bar</h2><p z-var="baz ." class="template-clone" template-clone="{sub}" template-clone-id="0" template-clone-hash="2496785494" z-var-content="Looping through a list #${baz}" z-content-rev="1">Looping through a list #boo</p><template template="{sub}">
+                <h2 z-var="foo .">Test ${foo}</h2>
+                <p z-var="baz .">Looping through a list #${baz}</p>
+            </template>
+            </article>
+        </li>
+        <li data='{"list": [11,12,13,14]}'>
+            <article>
+                <template template="[list]">
+                    <h2 z-var="value .">Test ${value}</h2>
+                    <p z-var="value .">Looping through a list #${value}</p>
+                </template>
+            </article>
+            <article>
+                <h2 z-var="value ." class="template-clone" template-clone="[list]" template-clone-id="0" template-clone-hash="3596227959" z-var-content="Test ${value}" z-content-rev="1">Test 11</h2><p z-var="value ." class="template-clone" template-clone="[list]" template-clone-id="0" template-clone-hash="3596227959" z-var-content="Looping through a list #${value}" z-content-rev="1">Looping through a list #11</p><h2 z-var="value ." class="template-clone" template-clone="[list]" template-clone-id="1" template-clone-hash="1330857165" z-var-content="Test ${value}" z-content-rev="1">Test 12</h2><p z-var="value ." class="template-clone" template-clone="[list]" template-clone-id="1" template-clone-hash="1330857165" z-var-content="Looping through a list #${value}" z-content-rev="1">Looping through a list #12</p><h2 z-var="value ." class="template-clone" template-clone="[list]" template-clone-id="2" template-clone-hash="945058907" z-var-content="Test ${value}" z-content-rev="1">Test 13</h2><p z-var="value ." class="template-clone" template-clone="[list]" template-clone-id="2" template-clone-hash="945058907" z-var-content="Looping through a list #${value}" z-content-rev="1">Looping through a list #13</p><h2 z-var="value ." class="template-clone" template-clone="[list]" template-clone-id="3" template-clone-hash="2788221432" z-var-content="Test ${value}" z-content-rev="1">Test 14</h2><p z-var="value ." class="template-clone" template-clone="[list]" template-clone-id="3" template-clone-hash="2788221432" z-var-content="Looping through a list #${value}" z-content-rev="1">Looping through a list #14</p><template template="[list]">
+                    <h2 z-var="value .">Test ${value}</h2>
+                    <p z-var="value .">Looping through a list #${value}</p>
+                </template>
+            </article>
+        </li>
+        <li data='{"name": "John Doe"}'>
+            <article z-var="name @title, name .">???</article>
+            <article z-var="name @title, name ." title="John Doe" z-content-rev="1">John Doe</article>
+        </li>
+        <li data='{"magic": "is real"}'>
+            <article>
+                <div z-var="magic event test1"></div>
+                <div z-var="magic :test2"></div>
+            </article>
+            <article>
+                <div z-var="magic event test1" data-event-test1="{&quot;value&quot;:&quot;is real&quot;,&quot;data&quot;:{&quot;magic&quot;:&quot;is real&quot;},&quot;arguments&quot;:[]}"></div>
+                <div z-var="magic :test2" data-event-test2="{&quot;value&quot;:&quot;is real&quot;,&quot;data&quot;:{&quot;magic&quot;:&quot;is real&quot;},&quot;arguments&quot;:[]}"></div>
+            </article>
+        </li>
+        <li data='{"magic": "is real"}'>
+            <article>
+                <div z-var="magic call onTest1"></div>
+                <div z-var="magic *onTest2"></div>
+            </article>
+            <article>
+                <div z-var="magic call onTest1" data-test1="{&quot;value&quot;:&quot;is real&quot;,&quot;data&quot;:{&quot;magic&quot;:&quot;is real&quot;},&quot;arguments&quot;:[]}"></div>
+                <div z-var="magic *onTest2" data-test2="{&quot;value&quot;:&quot;is real&quot;,&quot;data&quot;:{&quot;magic&quot;:&quot;is real&quot;},&quot;arguments&quot;:[]}"></div>
+            </article>
+        </li>
+        <!-- <li data='{"state": true}'> -->
+        <!--     <article> -->
+        <!--         <div z-var="!state !"></div> -->
+        <!--         <div z-var="!state remove"></div> -->
+        <!--         <div z-var="state !"></div> -->
+        <!--         <div z-var="state remove"></div> -->
+        <!--     </article> -->
+        <!--     <article> -->
+        <!--         <div z-var="!state !" z-removed="true" style="height: 0px; width: 373.035px; transition: margin 200ms ease-in-out 0s; margin: 0px;"></div> -->
+        <!--         <div z-var="!state remove" z-removed="true" style="height: 0px; width: 373.035px; transition: margin 200ms ease-in-out 0s; margin: 0px;"></div> -->
+        <!--         <div z-var="state !"></div> -->
+        <!--         <div z-var="state remove"></div> -->
+        <!--     </article> -->
+        <!-- </li> -->
+        <li data='{"state": true}'>
+            <article>
+                <div z-var="!state ?"></div>
+                <div z-var="!state toggle"></div>
+                <div z-var="state ?"></div>
+                <div z-var="state toggle"></div>
+            </article>
+            <article>
+                <div z-var="!state ?" class="z-template-hidden"></div>
+                <div z-var="!state toggle" class="z-template-hidden"></div>
+                <div z-var="state ?" class="z-template-visible"></div>
+                <div z-var="state toggle" class="z-template-visible"></div>
+            </article>
+        </li>
+        <li data='{"state": true}'>
+            <article>
+                <div z-var="state .foo.bar"></div>
+                <div z-var="state class 'foo bar'"></div>
+                <div z-var="state class 'foo !bar'" class="foo bar"></div>
+                <div z-var="state class '!foo !bar'" class="foo bar"></div>
+            </article>
+            <article>
+                <div z-var="state .foo.bar" class="foo bar"></div>
+                <div z-var="state class 'foo bar'" class="foo bar"></div>
+                <div z-var="state class 'foo !bar'" class="foo"></div>
+                <div z-var="state class '!foo !bar'" class=""></div>
+            </article>
+        </li>
+        <li data='{"name": "John Doe"}'>
+            <article z-var="name @title, name ." title="Mr.${name}">Mr.${name}</article>
+            <article z-var="name @title, name ." title="Mr.John Doe" z-content-rev="1">Mr.John Doe</article>
+        </li>
+        <li data='{"isEnabled": true}'>
+            <article>
+                <input type="checkbox" z-var="isEnabled @checked"/>
+                <input type="checkbox" z-var="!isEnabled @checked"/>
+                <input type="checkbox" z-var="!!isEnabled @checked"/>
+            </article>
+        </li>
+        <li data='{"message": "<b>Hello <i>world</i>!</b>"}'>
+            <article z-var="message +"></article>
+            <article z-var="message +" z-content-rev="1"><b>Hello <i>world</i>!</b></article>
+        </li>
+        <li data='{"preference": "option-b"}'>
+            <article>
+                <form>
+                    <select z-var="preference =">
+                        <option value="option-a">Option A</option>
+                        <option value="option-b">Option B</option>
+                        <option value="option-c">Option C</option>
+                    </select>
+                    <input type="text" z-var="preference ="/>
+                    <input type="radio" z-var="preference =" name="test-1252" value="option-a"/>
+                    <input type="radio" z-var="preference =" name="test-1252" value="option-b"/>
+                    <input type="radio" z-var="preference =" name="test-1252" value="option-c"/>
+                    <input type="checkbox" z-var="preference =" name="test-1252" value="option-b"/>
+                    <textarea z-var="preference ="></textarea>
+                </form>
+            </article>
+            <article>
+                <form>
+                    <select z-var="preference =" z-content-rev="1"/>
+                        <option value="option-a">Option A</option>
+                        <option value="option-b" selected="selected">Option B</option>
+                        <option value="option-c">Option C</option>
+                    </select>
+                    <input type="text" z-var="preference =" value="option-b"/>
+                    <input type="radio" z-var="preference =" name="test-1252" value="option-a"/>
+                    <input type="radio" z-var="preference =" name="test-1252" value="option-b" checked="checked"/>
+                    <input type="radio" z-var="preference =" name="test-1252" value="option-c"/>
+                    <input type="checkbox" z-var="preference =" name="test-1252" value="option-b" checked="checked"/>
+                    <textarea z-var="preference =" z-content-rev="1"/>option-b</textarea>
+                </form>
+            </article>
+        </li>
+
+        <li data='{"name": "John Doe"}'>
+            <article z-var="name attr title, name text">???</article>
+            <article z-var="name attr title, name text" title="John Doe" z-content-rev="1">John Doe</article>
+        </li>
+    </ol>
+
+</body>

@@ -1,0 +1,76 @@
+/**
+ * @module     Z Template
+ * @author     Daniel Sevcik <sevcik@webdevelopers.cz>
+ * @copyright  2023 Daniel Sevcik
+ * @license    MIT License
+ */
+/* element if it has .z-roller child */
+.z-roller-rolling:has(span) {
+    overflow: hidden;
+    display: run-in block;
+}
+
+.z-roller {
+    clip-path: inset(0 0 0 0);
+    vertical-align: bottom;
+    display: inline-block;
+    position: relative;
+}
+
+.z-roller.z-roller-animate > .z-roller-letter {
+    visibility: hidden;
+}
+
+.z-roller:before {
+    content: attr(data-z-face);
+    display: block;
+    white-space: pre;
+    line-height: inherit;
+    animation-iteration-count: 1;
+    animation-fill-mode: forwards;
+    animation-timing-function: ease-in-out;
+    animation-duration: var(--z-roller-speed, 1000ms);
+    animation-delay: var(--z-roller-delay, 0ms);
+    position: absolute;
+    line-height: var(--z-roller-line-height, 1.2em);
+}
+
+.z-roller:not(.z-roller-animate):before {
+    visibility: hidden;
+}
+
+.z-roller-up:before {
+    transform: translateY(0);
+    top: 0;
+}
+
+.z-roller-down:before {
+    transform: translateY(0%);
+    bottom: 0;
+}
+
+.z-roller-animate.z-roller-up:before {
+    animation-name: z-roller-up;
+}
+
+.z-roller-animate.z-roller-down:before {
+    animation-name: z-roller-down;
+}
+
+@keyframes z-roller-down {
+    0% {
+        transform: translateY(0%);
+    }
+    100% {
+        transform: translateY(calc(100% - var(--z-roller-line-height, 1.2em)));
+    }
+}
+
+@keyframes z-roller-up {
+    0% {
+        transform: translateY(0%);
+    }
+    100% {
+        transform: translateY(calc(-100% + var(--z-roller-line-height, 1.2em)));
+    }
+}

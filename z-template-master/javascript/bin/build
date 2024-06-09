@@ -1,0 +1,42 @@
+#!/bin/bash
+
+# This script is used to build one template.bundle.min.js that contains all the templates.
+pushd `dirname "$0"` > /dev/null 2>&1;
+trap "popd > /dev/null" EXIT;
+
+BUNDLE=(
+    "../tokenize.js"
+    "../prepare.js"
+    "../template.js"
+);
+
+# Print all up to a line having keyword @INSERT
+echo "Generating template.bundle.js...";
+(
+    echo "/*! Z Template | (c) Daniel Sevcik | MIT License | https://github.com/webdevelopers-eu/z-template | build `date -u -Iseconds` */";
+    echo "window.zTemplate = (function() {";
+    cat "${BUNDLE[@]}" | grep -vE "^\s*(import|export|module)\s";
+    echo " return zTemplate;})();";
+) > ../template.bundle.js
+
+
+# Print all up to a line having keyword @INSERT
+echo "Generating template.bundle.module.js...";
+(
+    echo "/*! Z Template | (c) Daniel Sevcik | MIT License | https://github.com/webdevelopers-eu/z-template | build `date -u -Iseconds` */";
+    cat "${BUNDLE[@]}" | grep -vE "^\s*import|export\s";
+    echo -n "export default zTemplate;"; 
+) > ../template.bundle.module.js
+
+#cat ../template.bundle.js | uglifyjs --source-map "url='template.bundle.min.js.map'" --comments "/^!/" -o ../template.bundle.min.js --compress --mangle --toplevel --mangle-props reserved=['zTemplate'];
+echo "Minifying template.bundle.js...";
+babel-minify ../template.bundle.js --mangle --simplify --booleans --memberExpressions --mergeVars --numericLiterals --propertyLiterals -o ../template.bundle.min.js;
+
+echo "Minifying template.bundle.module.js...";
+babel-minify ../template.bundle.module.js --mangle --simplify --booleans --memberExpressions --mergeVars --numericLiterals --propertyLiterals --sourceType module -o ../template.bundle.module.min.js;
+
+ls -lah `readlink -f ../template.bundle.min.js`;
+ls -lah `readlink -f ../template.bundle.module.min.js`;
+
+popd > /dev/null;
+trap "" EXIT;
